@@ -8,7 +8,7 @@ interface BuoyFormProps {
 
 const BuoyForm: React.FC<BuoyFormProps> = ({ onAddBuoy }) => {
   const [name, setName] = useState('');
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   
   // Latitude state (Degrees, Minutes, Direction)
   const [latDeg, setLatDeg] = useState('');

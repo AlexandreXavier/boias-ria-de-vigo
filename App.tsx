@@ -76,7 +76,7 @@ const ROUTE_DEFINITIONS: Record<string, string[]> = {
 
 const App: React.FC = () => {
   const [buoys, setBuoys] = useState<Buoy[]>(INITIAL_BUOYS);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeRoute, setActiveRoute] = useState<RouteId>('all');
   const [isVisiblePanelCollapsed, setIsVisiblePanelCollapsed] = useState(false);
   const [selectedBuoyId, setSelectedBuoyId] = useState<string | null>(null);
