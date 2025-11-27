@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Anchor, Menu, X } from 'lucide-react';
+import { Anchor, Menu, X, ChevronsDownUp } from 'lucide-react';
 import VigoMap from './components/Map';
 import BuoyForm from './components/BuoyForm';
 import RouteSelector, { RouteId } from './components/RouteSelector';
@@ -78,6 +78,8 @@ const App: React.FC = () => {
   const [buoys, setBuoys] = useState<Buoy[]>(INITIAL_BUOYS);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeRoute, setActiveRoute] = useState<RouteId>('all');
+  const [isVisiblePanelCollapsed, setIsVisiblePanelCollapsed] = useState(false);
+  const [selectedBuoyId, setSelectedBuoyId] = useState<string | null>(null);
 
   const handleAddBuoy = (newBuoyData: Omit<Buoy, 'id' | 'createdAt'>) => {
     const newBuoy: Buoy = {
@@ -147,15 +149,22 @@ const App: React.FC = () => {
               currentRoute={activeRoute} 
               onSelectRoute={setActiveRoute} 
             />
-            
-            <BuoyForm onAddBuoy={handleAddBuoy} />
-            
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex-1 min-h-[200px] flex flex-col">
               <h3 className="font-semibold text-lg text-indigo-900 mb-4 flex items-center justify-between">
-                <span>Boias Visíveis</span>
-                <span className="bg-indigo-100 text-indigo-600 text-xs px-2 py-1 rounded-full">{visibleBuoys.length}</span>
+                <div className="flex items-center space-x-2">
+                  <span>Boias Visíveis</span>
+                  <span className="bg-indigo-100 text-indigo-600 text-xs px-2 py-1 rounded-full">{visibleBuoys.length}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsVisiblePanelCollapsed(prev => !prev)}
+                  className="flex items-center space-x-1 text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
+                >
+                  <ChevronsDownUp className={`w-4 h-4 transition-transform ${isVisiblePanelCollapsed ? 'rotate-180' : ''}`} />
+                </button>
               </h3>
               
+              {!isVisiblePanelCollapsed && (
               <div className="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                 {visibleBuoys.length === 0 ? (
                   <div className="text-center text-slate-400 py-8 text-sm">
@@ -163,7 +172,11 @@ const App: React.FC = () => {
                   </div>
                 ) : (
                   visibleBuoys.map(buoy => (
-                    <div key={buoy.id} className="group p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all cursor-pointer">
+                    <div
+                      key={buoy.id}
+                      className="group p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all cursor-pointer"
+                      onClick={() => setSelectedBuoyId(buoy.id)}
+                    >
                       <div className="flex justify-between items-start">
                         <div>
                           <div className="font-medium text-slate-700">{buoy.name}</div>
@@ -188,7 +201,10 @@ const App: React.FC = () => {
                   ))
                 )}
               </div>
+              )}
             </div>
+
+            <BuoyForm onAddBuoy={handleAddBuoy} />
           </div>
         )}
 
@@ -204,7 +220,7 @@ const App: React.FC = () => {
           </button>
 
           {/* Pass visibleBuoys instead of all buoys */}
-          <VigoMap buoys={visibleBuoys} />
+          <VigoMap buoys={visibleBuoys} sidebarOpen={isSidebarOpen} selectedBuoyId={selectedBuoyId ?? undefined} />
         </div>
 
       </main>

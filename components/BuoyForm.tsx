@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, MapPin } from 'lucide-react';
+import { Plus, MapPin, ChevronsDownUp } from 'lucide-react';
 import { Buoy } from '../types';
 
 interface BuoyFormProps {
@@ -8,6 +8,7 @@ interface BuoyFormProps {
 
 const BuoyForm: React.FC<BuoyFormProps> = ({ onAddBuoy }) => {
   const [name, setName] = useState('');
+  const [isCollapsed, setIsCollapsed] = useState(false);
   
   // Latitude state (Degrees, Minutes, Direction)
   const [latDeg, setLatDeg] = useState('');
@@ -58,11 +59,22 @@ const BuoyForm: React.FC<BuoyFormProps> = ({ onAddBuoy }) => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-4">
-      <div className="flex items-center space-x-2 text-indigo-900 mb-2">
-        <MapPin className="w-5 h-5" />
-        <h3 className="font-semibold text-lg">Adicionar Nova Boia</h3>
+      <div className="flex items-center justify-between text-indigo-900 mb-2">
+        <div className="flex items-center space-x-2">
+          <MapPin className="w-5 h-5" />
+          <h3 className="font-semibold text-lg">Adicionar Nova Boia</h3>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(prev => !prev)}
+          className="flex items-center space-x-1 text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
+        >
+          <ChevronsDownUp className={`w-4 h-4 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
+        </button>
       </div>
-      
+
+      {!isCollapsed && (
+      <>
       <div>
         <label className="block text-sm font-medium text-slate-600 mb-1">Nome / ID</label>
         <input
@@ -177,6 +189,8 @@ const BuoyForm: React.FC<BuoyFormProps> = ({ onAddBuoy }) => {
         <Plus className="w-4 h-4" />
         <span>Marcar Posição</span>
       </button>
+      </>
+      )}
     </form>
   );
 };

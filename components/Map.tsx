@@ -1,7 +1,8 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import { Buoy } from '../types';
+import './map.css';
 
 // Fix for default Leaflet marker icons in React
 const customIcon = new Icon({
@@ -14,11 +15,37 @@ const customIcon = new Icon({
   shadowSize: [41, 41]
 });
 
+// Icone especial para boia selecionada
+const selectedIcon = new Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  iconRetinaUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
 interface MapProps {
   buoys: Buoy[];
+  sidebarOpen: boolean;
+  selectedBuoyId?: string;
 }
 
-const VigoMap: React.FC<MapProps> = ({ buoys }) => {
+const ResizeHandler: React.FC<{ sidebarOpen: boolean }> = ({ sidebarOpen }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    // Recalcula o tamanho do mapa sempre que o layout muda (ex: sidebar)
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+  }, [map, sidebarOpen]);
+
+  return null;
+};
+
+const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId }) => {
   // Center of Ria de Vigo
   const defaultCenter: [number, number] = [42.2328, -8.7226];
   const defaultZoom = 12;
@@ -31,15 +58,19 @@ const VigoMap: React.FC<MapProps> = ({ buoys }) => {
         scrollWheelZoom={true} 
         className="h-full w-full"
       >
+        <ResizeHandler sidebarOpen={sidebarOpen} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
-        {buoys.map((buoy) => (
+        {buoys.map((buoy) => {
+          const isSelected = selectedBuoyId === buoy.id;
+          return (
           <Marker 
             key={buoy.id} 
             position={[buoy.lat, buoy.lng]} 
-            icon={customIcon}
+            icon={isSelected ? selectedIcon : customIcon}
+            className={isSelected ? 'selected-buoy-marker' : undefined}
           >
             <Popup>
               <div className="p-1">
@@ -55,7 +86,8 @@ const VigoMap: React.FC<MapProps> = ({ buoys }) => {
               </div>
             </Popup>
           </Marker>
-        ))}
+        );
+        })}
       </MapContainer>
     </div>
   );
