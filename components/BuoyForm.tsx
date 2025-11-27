@@ -69,7 +69,7 @@ const BuoyForm: React.FC<BuoyFormProps> = ({ onAddBuoy }) => {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="ex: Boia Vermelha A1"
+          placeholder="ex: Boia Lousal"
           className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
           required
         />
@@ -153,7 +153,7 @@ const BuoyForm: React.FC<BuoyFormProps> = ({ onAddBuoy }) => {
             onChange={(e) => setLngDir(e.target.value)}
             className="w-16 px-2 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
           >
-            <option value="W">O</option> {/* O for Oeste */}
+            <option value="W">W</option>
             <option value="E">E</option>
           </select>
         </div>
