@@ -1,0 +1,7 @@
+{
+  "name": "Regata na Ria de Vigo",
+  "description": "Uma aplicação simples para visualizar e gerir boias na Ria de Vigo, Espanha.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
