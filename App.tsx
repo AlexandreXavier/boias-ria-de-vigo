@@ -220,7 +220,12 @@ const App: React.FC = () => {
           </button>
 
           {/* Pass visibleBuoys instead of all buoys */}
-          <VigoMap buoys={visibleBuoys} sidebarOpen={isSidebarOpen} selectedBuoyId={selectedBuoyId ?? undefined} />
+          <VigoMap
+            buoys={visibleBuoys}
+            sidebarOpen={isSidebarOpen}
+            selectedBuoyId={selectedBuoyId ?? undefined}
+            activeRoute={activeRoute}
+          />
         </div>
 
       </main>

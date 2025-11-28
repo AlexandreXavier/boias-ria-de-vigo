@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Icon, Map as LeafletMap } from 'leaflet';
+import * as L from 'leaflet';
 import { Crosshair } from 'lucide-react';
 import { Buoy } from '../types';
 import './map.css';
@@ -39,6 +40,7 @@ interface MapProps {
   buoys: Buoy[];
   sidebarOpen: boolean;
   selectedBuoyId?: string;
+  activeRoute: string;
 }
 
 const ResizeHandler: React.FC<{ sidebarOpen: boolean }> = ({ sidebarOpen }) => {
@@ -49,6 +51,70 @@ const ResizeHandler: React.FC<{ sidebarOpen: boolean }> = ({ sidebarOpen }) => {
       map.invalidateSize();
     }, 200);
   }, [map, sidebarOpen]);
+
+  return null;
+};
+
+// Anima a rota desenhando trechos entre as boias visíveis, na ordem em que chegam,
+// e move um marcador em forma de "barco" entre as boias
+const RouteAnimator: React.FC<{ buoys: Buoy[] }> = ({ buoys }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (buoys.length < 2) return;
+
+    const createdLines: L.Polyline[] = [];
+    const positions: [number, number][] = buoys.map(b => [b.lat, b.lng]);
+    let boatMarker: L.Marker | null = null;
+    const timeouts: number[] = [];
+
+    positions.forEach((pos, index) => {
+      if (index === 0) {
+        // Cria o marcador de "barco" na primeira boia
+        boatMarker = L.marker(pos, { icon: funny }).addTo(map);
+        return;
+      }
+
+      const from = positions[index - 1];
+      const to = pos;
+
+      const timeoutId = window.setTimeout(() => {
+        // Garante que o marcador exista
+        if (!boatMarker) {
+          boatMarker = L.marker(from, { icon: funny }).addTo(map);
+        }
+
+        // Move o marcador para a próxima boia
+        boatMarker.setLatLng(to);
+
+        // Recentra apenas se a próxima boia estiver fora da vista atual
+        const bounds = map.getBounds();
+        if (!bounds.contains(to)) {
+          map.panTo(to);
+        }
+
+        // Desenha o trecho entre as duas boias em vermelho
+        const line = L.polyline([from, to], {
+          color: '#ef4444', // vermelho
+          weight: 5,
+          dashArray: '10',
+        }).addTo(map);
+
+        createdLines.push(line);
+      }, index * 1000); // delay entre cada trecho
+
+      timeouts.push(timeoutId);
+    });
+
+    return () => {
+      // Cancela timeouts pendentes para não desenhar linhas depois da troca de percurso
+      timeouts.forEach(id => window.clearTimeout(id));
+      createdLines.forEach(line => map.removeLayer(line));
+      if (boatMarker) {
+        map.removeLayer(boatMarker);
+      }
+    };
+  }, [map, buoys]);
 
   return null;
 };
@@ -64,7 +130,7 @@ const MapInstanceObserver: React.FC<{ setMapInstance: (map: LeafletMap) => void 
   return null;
 };
 
-const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId }) => {
+const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activeRoute }) => {
   // Center of Ria de Vigo
   const defaultCenter: [number, number] = [42.2328, -8.7226];
   const defaultZoom = 12;
@@ -108,6 +174,8 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId }) => 
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
+        {/* Animação dos trechos entre boias visíveis, na ordem do array (excepto em 'all') */}
+        {activeRoute !== 'all' && <RouteAnimator buoys={buoys} />}
         {buoys.map((buoy) => {
           const isSelected = selectedBuoyId === buoy.id;
           return (
