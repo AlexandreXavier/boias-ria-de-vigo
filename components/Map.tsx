@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Icon, Map as LeafletMap } from 'leaflet';
 import * as L from 'leaflet';
@@ -136,6 +136,8 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activ
   const defaultZoom = 12;
 
   const [mapInstance, setMapInstance] = useState<LeafletMap | null>(null);
+  const userLocationCircleRef = useRef<L.Circle | null>(null);
+  const userLocationTooltipRef = useRef<L.Tooltip | null>(null);
 
   const handleLocateMe = () => {
     console.log('Locate me clicked');
@@ -143,8 +145,44 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activ
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords;
-        mapInstance.flyTo([latitude, longitude], 13, { duration: 1.5 });
+        const { latitude, longitude, accuracy } = position.coords;
+        const latlng: [number, number] = [latitude, longitude];
+
+        // recentra o mapa na posição do utilizador
+        mapInstance.flyTo(latlng, 13, { duration: 1.5 });
+
+        // remove círculo/texto anteriores, se existirem
+        if (userLocationCircleRef.current) {
+          mapInstance.removeLayer(userLocationCircleRef.current);
+        }
+        if (userLocationTooltipRef.current) {
+          mapInstance.removeLayer(userLocationTooltipRef.current);
+        }
+
+        // cria círculo de precisão
+        const circle = L.circle(latlng, {
+          radius: accuracy / 2,
+          weight: 2,
+          color: 'red',
+          fillColor: 'red',
+          fillOpacity: 0.1,
+        });
+
+        circle.addTo(mapInstance);
+
+        // adiciona apenas o texto "Está AQUI" sobre a posição
+        const tooltip = L.tooltip({
+          permanent: true,
+          direction: 'top',
+          className: 'user-location-tooltip',
+        })
+          .setLatLng(latlng)
+          .setContent('MAD MAX');
+
+        tooltip.addTo(mapInstance);
+
+        userLocationCircleRef.current = circle;
+        userLocationTooltipRef.current = tooltip;
       },
       (error) => {
         console.error('Erro ao obter localização:', error);
