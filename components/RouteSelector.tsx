@@ -6,15 +6,18 @@ export type RouteId = 'all' | 'numeral1' | 'numeral2' | 'numeral3' | 'numeral4';
 interface RouteSelectorProps {
   currentRoute: RouteId;
   onSelectRoute: (route: RouteId) => void;
+  startLabel?: string; // nome da "boia" inicial (MAD MAX quando activo, Lousal caso contrário)
 }
 
-const RouteSelector: React.FC<RouteSelectorProps> = ({ currentRoute, onSelectRoute }) => {
+const RouteSelector: React.FC<RouteSelectorProps> = ({ currentRoute, onSelectRoute, startLabel }) => {
+  const start = startLabel ?? 'Lousal';
+
   const routes = [
     { id: 'all', label: 'Todas as Boias', sub: 'Visão Geral' },
-    { id: 'numeral1', label: 'Numeral 1', sub: 'Subrido - La Negra' },
-    { id: 'numeral2', label: 'Numeral 2', sub: 'Subrido - Met. Cíes' },
-    { id: 'numeral3', label: 'Numeral 3', sub: 'Lousal - Tofiño' },
-    { id: 'numeral4', label: 'Numeral 4', sub: 'Lousal - Bondaña' },
+    { id: 'numeral1', label: 'Numeral 1', sub: `${start} - Subrido - La Negra` },
+    { id: 'numeral2', label: 'Numeral 2', sub: `${start} - Subrido - Met. Cíes` },
+    { id: 'numeral3', label: 'Numeral 3', sub: `${start} - Lousal - Tofiño` },
+    { id: 'numeral4', label: 'Numeral 4', sub: `${start} - Lousal - Bondaña` },
   ];
 
   return (

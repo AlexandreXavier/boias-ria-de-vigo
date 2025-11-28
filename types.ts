@@ -3,6 +3,7 @@ export interface Buoy {
   name: string;
   lat: number;
   lng: number;
+  sentido?: string;
   description?: string;
   createdAt: number;
 }

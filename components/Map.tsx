@@ -41,8 +41,11 @@ interface MapProps {
   sidebarOpen: boolean;
   selectedBuoyId?: string;
   activeRoute: string;
+  onMadMaxLocationChange?: (position: { lat: number; lng: number }) => void;
+  startPosition?: { lat: number; lng: number } | null;
 }
 
+// Handler para redimensionar o mapa quando o sidebar é aberto/fechado
 const ResizeHandler: React.FC<{ sidebarOpen: boolean }> = ({ sidebarOpen }) => {
   const map = useMap();
 
@@ -56,15 +59,19 @@ const ResizeHandler: React.FC<{ sidebarOpen: boolean }> = ({ sidebarOpen }) => {
 };
 
 // Anima a rota desenhando trechos entre as boias visíveis, na ordem em que chegam,
-// e move um marcador em forma de "barco" entre as boias
-const RouteAnimator: React.FC<{ buoys: Buoy[] }> = ({ buoys }) => {
+// e move um marcador em forma de "barco" entre as boias. Se startPosition existir,
+// ela será usada como primeiro ponto lógico da rota (posição do barco ou fallback).
+const RouteAnimator: React.FC<{ buoys: Buoy[]; startPosition?: { lat: number; lng: number } | null }> = ({ buoys, startPosition }) => {
   const map = useMap();
 
   useEffect(() => {
     if (buoys.length < 2) return;
 
     const createdLines: L.Polyline[] = [];
-    const positions: [number, number][] = buoys.map(b => [b.lat, b.lng]);
+    const positions: [number, number][] = [
+      ...(startPosition ? [[startPosition.lat, startPosition.lng] as [number, number]] : []),
+      ...buoys.map(b => [b.lat, b.lng] as [number, number]),
+    ];
     let boatMarker: L.Marker | null = null;
     const timeouts: number[] = [];
 
@@ -119,6 +126,7 @@ const RouteAnimator: React.FC<{ buoys: Buoy[] }> = ({ buoys }) => {
   return null;
 };
 
+
 // Captura a instância do mapa (react-leaflet v4/v5) e envia para o estado no componente pai
 const MapInstanceObserver: React.FC<{ setMapInstance: (map: LeafletMap) => void }> = ({ setMapInstance }) => {
   const map = useMap();
@@ -130,7 +138,8 @@ const MapInstanceObserver: React.FC<{ setMapInstance: (map: LeafletMap) => void 
   return null;
 };
 
-const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activeRoute }) => {
+// Componente principal do mapa
+const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activeRoute, onMadMaxLocationChange, startPosition }) => {
   // Center of Ria de Vigo
   const defaultCenter: [number, number] = [42.2328, -8.7226];
   const defaultZoom = 12;
@@ -147,6 +156,10 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activ
       (position) => {
         const { latitude, longitude, accuracy } = position.coords;
         const latlng: [number, number] = [latitude, longitude];
+
+        if (onMadMaxLocationChange) {
+          onMadMaxLocationChange({ lat: latitude, lng: longitude });
+        }
 
         // recentra o mapa na posição do utilizador
         mapInstance.flyTo(latlng, 13, { duration: 1.5 });
@@ -170,14 +183,14 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activ
 
         circle.addTo(mapInstance);
 
-        // adiciona apenas o texto "Está AQUI" sobre a posição
+        // adiciona apenas o texto "MAD MAX" sobre a posição mais tarde
         const tooltip = L.tooltip({
           permanent: true,
           direction: 'top',
           className: 'user-location-tooltip',
         })
           .setLatLng(latlng)
-          .setContent('MAD MAX');
+          .setContent('MAD MAX :' +' Lat: '+ latlng[0] + ' Lng: '+ latlng[1]);
 
         tooltip.addTo(mapInstance);
 
@@ -212,8 +225,9 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activ
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
-        {/* Animação dos trechos entre boias visíveis, na ordem do array (excepto em 'all') */}
-        {activeRoute !== 'all' && <RouteAnimator buoys={buoys} />}
+        {/* Animação dos trechos entre boias visíveis, na ordem do array (excepto em 'all').
+            Se existir startPosition, ela é usada como primeiro ponto lógico da rota. */}
+        {activeRoute !== 'all' && <RouteAnimator buoys={buoys} startPosition={startPosition} />}
         {buoys.map((buoy) => {
           const isSelected = selectedBuoyId === buoy.id;
           return (

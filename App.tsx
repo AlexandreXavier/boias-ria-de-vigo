@@ -80,6 +80,7 @@ const App: React.FC = () => {
   const [activeRoute, setActiveRoute] = useState<RouteId>('all');
   const [isVisiblePanelCollapsed, setIsVisiblePanelCollapsed] = useState(false);
   const [selectedBuoyId, setSelectedBuoyId] = useState<string | null>(null);
+  const [madMaxPosition, setMadMaxPosition] = useState<{ lat: number; lng: number } | null>(null);
 
   const handleAddBuoy = (newBuoyData: Omit<Buoy, 'id' | 'createdAt'>) => {
     const newBuoy: Buoy = {
@@ -103,6 +104,33 @@ const App: React.FC = () => {
     const requiredNames = ROUTE_DEFINITIONS[activeRoute] || [];
     return buoys.filter(buoy => requiredNames.includes(buoy.name));
   }, [buoys, activeRoute]);
+
+  const bouzasNorteBuoy = useMemo(
+    () => buoys.find(b => b.name === 'Bouzas Norte'),
+    [buoys]
+  );
+
+  const routeStartPosition = madMaxPosition ?? (bouzasNorteBuoy
+    ? { lat: bouzasNorteBuoy.lat, lng: bouzasNorteBuoy.lng }
+    : null
+  );
+
+  const ROUTE_DEFINITIONS_WITH_START = useMemo(() => {
+    if (!routeStartPosition) {
+      return ROUTE_DEFINITIONS;
+    }
+
+    return {
+      numeral1: [routeStartPosition, ...ROUTE_DEFINITIONS.numeral1],
+      numeral2: [routeStartPosition, ...ROUTE_DEFINITIONS.numeral2],
+      numeral3: [routeStartPosition, ...ROUTE_DEFINITIONS.numeral3],
+      numeral4: [routeStartPosition, ...ROUTE_DEFINITIONS.numeral4],
+    } as Record<string, (typeof routeStartPosition | string)[]>;
+  }, [routeStartPosition]);
+
+  // Label amigável para a primeira "boia" lógica da rota:
+  // MAD MAX quando a posição do barco está activa, caso contrário Lousal
+  const routeStartLabel = madMaxPosition ? 'MAD MAX' : 'Lousal';
 
   // Ajuda para formatar Decimal Degrees to DD° MM.MMM'
   const formatCoordinate = (val: number, isLat: boolean): string => {
@@ -147,7 +175,8 @@ const App: React.FC = () => {
           <div className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto pr-1 animate-in slide-in-from-left duration-300">
             <RouteSelector 
               currentRoute={activeRoute} 
-              onSelectRoute={setActiveRoute} 
+              onSelectRoute={setActiveRoute}
+              startLabel={routeStartLabel}
             />
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex-1 min-h-[200px] flex flex-col">
               <h3 className="font-semibold text-lg text-indigo-900 mb-4 flex items-center justify-between">
@@ -225,6 +254,8 @@ const App: React.FC = () => {
             sidebarOpen={isSidebarOpen}
             selectedBuoyId={selectedBuoyId ?? undefined}
             activeRoute={activeRoute}
+            onMadMaxLocationChange={setMadMaxPosition}
+            startPosition={routeStartPosition ?? undefined}
           />
         </div>
 
