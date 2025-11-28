@@ -14,6 +14,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.24762,
     lng: -8.74563,
     description: 'Área de saída e chegada, ao norte de Bouzas',
+    sentido: 'Babor',
     createdAt: Date.now(),
   },
   {
@@ -22,6 +23,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.15475,
     lng: -8.88577,
     description: 'Ponto de referência costeiro a sudoeste',
+    sentido: 'Estribor',
     createdAt: Date.now(),
   },
   {
@@ -30,6 +32,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.17748,
     lng: -8.89342,
     description: 'Baliza meteorológica situada a sul das Ilhas Cíes',
+    sentido: 'Estribor',
     createdAt: Date.now(),
   },
   {
@@ -38,6 +41,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.27485,
     lng: -8.68905,
     description: 'Ponto de controle localizado a leste de Vigo',
+    sentido: 'Babor',
     createdAt: Date.now(),
   },
   {
@@ -46,6 +50,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.22845,
     lng: -8.77865,
     description: 'Referência próxima ao porto pesqueiro',
+    sentido: 'Estribor',
     createdAt: Date.now(),
   },
   {
@@ -54,6 +59,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.24283,
     lng: -8.86533,
     description: 'Marcador intermediário costeiro',
+    sentido: 'Babor',
     createdAt: Date.now(),
   },
   {
@@ -62,6 +68,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.20532,
     lng: -8.81032,
     description: 'Sinalização próxima à costa sul de Vigo',
+    sentido: 'Estribor',
     createdAt: Date.now(),
   },
 ];
