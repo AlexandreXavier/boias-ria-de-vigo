@@ -151,23 +151,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col h-screen font-sans">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm z-20">
-        <div className="flex items-center space-x-3">
-          <div className="bg-indigo-600 p-2 rounded-lg text-white">
-            <Anchor className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-800">Regata na Ria de Vigo</h1>
-            <p className="text-xs text-slate-500">Localização das boias e percurso da regata</p>
-          </div>
-        </div>
-        <div className="text-xs font-mono text-slate-400 bg-slate-100 px-3 py-1 rounded-full hidden sm:block">
-          Ref: 42° 14.000' N | 08° 43.500' O
-        </div>
-      </header>
-
-      {/* Main Content */}
+      {/* Main Content - full height for map and controls */}
       <main className="flex-1 flex overflow-hidden p-4 gap-4 relative">
         
         {/* Left Sidebar - Controls */}
