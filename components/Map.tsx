@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Icon } from 'leaflet';
+import { Icon, Map as LeafletMap } from 'leaflet';
+import { Crosshair } from 'lucide-react';
 import { Buoy } from '../types';
 import './map.css';
 
@@ -13,6 +14,14 @@ const customIcon = new Icon({
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
+});
+
+// new icon
+const funny = new Icon({
+  iconUrl: "http://grzegorztomicki.pl/serwisy/pin.png",
+  iconSize: [50, 58], // size of the icon
+  iconAnchor: [20, 58], // changed marker icon position
+  popupAnchor: [0, -60], // changed popup position
 });
 
 // Icone especial para boia selecionada
@@ -36,11 +45,21 @@ const ResizeHandler: React.FC<{ sidebarOpen: boolean }> = ({ sidebarOpen }) => {
   const map = useMap();
 
   useEffect(() => {
-    // Recalcula o tamanho do mapa sempre que o layout muda (ex: sidebar)
     setTimeout(() => {
       map.invalidateSize();
     }, 200);
   }, [map, sidebarOpen]);
+
+  return null;
+};
+
+// Captura a instância do mapa (react-leaflet v4/v5) e envia para o estado no componente pai
+const MapInstanceObserver: React.FC<{ setMapInstance: (map: LeafletMap) => void }> = ({ setMapInstance }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    setMapInstance(map);
+  }, [map, setMapInstance]);
 
   return null;
 };
@@ -50,14 +69,40 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId }) => 
   const defaultCenter: [number, number] = [42.2328, -8.7226];
   const defaultZoom = 12;
 
+  const [mapInstance, setMapInstance] = useState<LeafletMap | null>(null);
+
+  const handleLocateMe = () => {
+    console.log('Locate me clicked');
+    if (!mapInstance || !navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        mapInstance.flyTo([latitude, longitude], 13, { duration: 1.5 });
+      },
+      (error) => {
+        console.error('Erro ao obter localização:', error);
+      }
+    );
+  };
+
   return (
-    <div className="h-full w-full rounded-xl overflow-hidden shadow-md border border-slate-200 bg-slate-100">
+    <div className="h-full w-full rounded-xl overflow-hidden shadow-md border border-slate-200 bg-slate-100 relative">
+      <button
+        type="button"
+        onClick={handleLocateMe}
+        className="absolute bottom-4 left-4 z-[900] bg-white/95 hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-md rounded-full px-3 py-2 flex items-center space-x-2 text-xs font-medium transition-colors"
+        title="Ir para a minha localização"
+      >
+        <Crosshair className="w-4 h-4" />
+      </button>
       <MapContainer 
         center={defaultCenter} 
         zoom={defaultZoom} 
         scrollWheelZoom={true} 
         className="h-full w-full"
       >
+        <MapInstanceObserver setMapInstance={setMapInstance} />
         <ResizeHandler sidebarOpen={sidebarOpen} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
