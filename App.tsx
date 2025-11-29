@@ -23,7 +23,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.15475,
     lng: -8.88577,
     description: 'Ponto de referência costeiro a sudoeste',
-    sentido: 'Estribor',
+    sentido: 'Babor',
     createdAt: Date.now(),
   },
   {
@@ -32,7 +32,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.17748,
     lng: -8.89342,
     description: 'Baliza meteorológica situada a sul das Ilhas Cíes',
-    sentido: 'Estribor',
+    sentido: 'Babor',
     createdAt: Date.now(),
   },
   {
@@ -41,7 +41,7 @@ const INITIAL_BUOYS: Buoy[] = [
     lat: 42.27485,
     lng: -8.68905,
     description: 'Ponto de controle localizado a leste de Vigo',
-    sentido: 'Babor',
+    sentido: 'Estribor',
     createdAt: Date.now(),
   },
   {

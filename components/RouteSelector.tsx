@@ -14,10 +14,10 @@ const RouteSelector: React.FC<RouteSelectorProps> = ({ currentRoute, onSelectRou
 
   const routes = [
     { id: 'all', label: 'Todas as Boias', sub: 'Visão Geral' },
-    { id: 'numeral1', label: 'Numeral 1', sub: `${start} - Subrido - La Negra` },
-    { id: 'numeral2', label: 'Numeral 2', sub: `${start} - Subrido - Met. Cíes` },
-    { id: 'numeral3', label: 'Numeral 3', sub: `${start} - Lousal - Tofiño` },
-    { id: 'numeral4', label: 'Numeral 4', sub: `${start} - Lousal - Bondaña` },
+    { id: 'numeral1', label: 'Numeral 1', sub: `${start} - Subrido(Babor) - La Negra(Babor)` },
+    { id: 'numeral2', label: 'Numeral 2', sub: `${start} - Subrido(Babor) - Met. Cíes(Babor)` },
+    { id: 'numeral3', label: 'Numeral 3', sub: `${start} - Lousal(Estribor) - Tofiño(Estribor)` },
+    { id: 'numeral4', label: 'Numeral 4', sub: `${start} - Lousal(Estribor) - Bondaña(Estribor)` },
   ];
 
   return (
