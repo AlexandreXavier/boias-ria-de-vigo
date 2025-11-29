@@ -15,7 +15,7 @@ const Assistant: React.FC<AssistantProps> = ({ userLocation }) => {
     {
       id: 'welcome',
       role: 'model',
-      text: 'Hello! I am your Ria de Vigo maritime assistant. I can help you find coordinates for locations, marinas, or answer questions about the area using Google Maps data. How can I help you mark your buoys today?'
+      text: 'Boa regata para a equipa Mad Max! Como posso ajudar hoje?'
     }
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -58,7 +58,7 @@ const Assistant: React.FC<AssistantProps> = ({ userLocation }) => {
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'model',
-        text: "I'm having trouble connecting to the maps data right now. Please try again.",
+        text: "Erro ao conectar ao mapa. Por favor, tente novamente.",
         isError: true
       }]);
     } finally {
@@ -68,16 +68,6 @@ const Assistant: React.FC<AssistantProps> = ({ userLocation }) => {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-      <div className="bg-indigo-900 text-white p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Sparkles className="w-5 h-5 text-yellow-300" />
-          <h3 className="font-semibold">Maritime Assistant</h3>
-        </div>
-        <div className="text-xs bg-indigo-800 px-2 py-1 rounded text-indigo-200 flex items-center gap-1">
-           <Map className="w-3 h-3"/> Maps Grounding
-        </div>
-      </div>
-
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
         {messages.map((msg) => (
           <div
@@ -137,7 +127,7 @@ const Assistant: React.FC<AssistantProps> = ({ userLocation }) => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about coordinates, marinas..."
+            placeholder="pesquise por regras de regata..."
             className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
             disabled={isLoading}
           />

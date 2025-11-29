@@ -3,6 +3,7 @@ import { Anchor, Menu, X, ChevronsDownUp } from 'lucide-react';
 import VigoMap from './components/Map';
 import BuoyForm from './components/BuoyForm';
 import RouteSelector, { RouteId } from './components/RouteSelector';
+import Assistant from './components/Assistant';
 import { Buoy } from './types';
 
 
@@ -139,6 +140,10 @@ const App: React.FC = () => {
   // MAD MAX quando a posição do barco está activa, caso contrário Lousal
   const routeStartLabel = madMaxPosition ? 'MAD MAX' : 'Lousal';
 
+  const assistantLocation = madMaxPosition
+    ? { latitude: madMaxPosition.lat, longitude: madMaxPosition.lng }
+    : null;
+
   // Ajuda para formatar Decimal Degrees to DD° MM.MMM'
   const formatCoordinate = (val: number, isLat: boolean): string => {
     const absVal = Math.abs(val);
@@ -234,6 +239,10 @@ const App: React.FC = () => {
                 )}
               </div>
               )}
+            </div>
+
+            <div className="min-h-[320px]">
+              <Assistant userLocation={assistantLocation} />
             </div>
 
             <BuoyForm onAddBuoy={handleAddBuoy} />
