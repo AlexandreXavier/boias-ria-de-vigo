@@ -1,7 +1,13 @@
 import { GoogleGenAI, Tool } from "@google/genai";
 import { GroundingLink } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY ?? process.env?.GEMINI_API_KEY;
+
+if (!apiKey) {
+  throw new Error('Gemini API key is missing. Define VITE_GEMINI_API_KEY in your .env file.');
+}
+
+const ai = new GoogleGenAI({ apiKey });
 
 // Using gemini-2.5-flash as requested for Maps Grounding
 const MODEL_NAME = "gemini-2.5-flash";
