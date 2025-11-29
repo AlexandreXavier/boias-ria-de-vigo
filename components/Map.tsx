@@ -38,7 +38,6 @@ const selectedIcon = new Icon({
 
 // Estilos de mapa disponíveis (TileLayer configs)
 type MapStyleId = 'voyager' | 'osm' | 'satellite';
-
 const MAP_STYLES: { id: MapStyleId; label: string; url: string; attribution: string }[] = [
   {
     id: 'voyager',
@@ -95,21 +94,23 @@ const RouteAnimator: React.FC<{ buoys: Buoy[]; startPosition?: { lat: number; ln
     if (buoys.length < 2) return;
 
     const createdLines: L.Polyline[] = [];
-    const positions: [number, number][] = [
-      ...(startPosition ? [[startPosition.lat, startPosition.lng] as [number, number]] : []),
-      ...buoys.map(b => [b.lat, b.lng] as [number, number]),
-    ];
+    const routePositions: [number, number][] = buoys.map(b => [b.lat, b.lng] as [number, number]);
+    let animationPositions: [number, number][] = [...routePositions].reverse();
+
+    if (startPosition) {
+      animationPositions = [[startPosition.lat, startPosition.lng], ...animationPositions];
+    }
     let boatMarker: L.Marker | null = null;
     const timeouts: number[] = [];
 
-    positions.forEach((pos, index) => {
+    animationPositions.forEach((pos, index) => {
       if (index === 0) {
         // Cria o marcador de "barco" na primeira boia
         boatMarker = L.marker(pos, { icon: funny }).addTo(map);
         return;
       }
 
-      const from = positions[index - 1];
+      const from = animationPositions[index - 1];
       const to = pos;
 
       const timeoutId = window.setTimeout(() => {
@@ -129,8 +130,8 @@ const RouteAnimator: React.FC<{ buoys: Buoy[]; startPosition?: { lat: number; ln
 
         // Desenha o trecho entre as duas boias em vermelho
         const line = L.polyline([from, to], {
-          color: '#ef4444', // vermelho
-          weight: 5,
+          color: '#f06e6eff', // vermelho
+          weight: 3,
           dashArray: '10',
         }).addTo(map);
 

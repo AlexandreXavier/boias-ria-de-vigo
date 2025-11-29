@@ -23,7 +23,7 @@ const RouteSelector: React.FC<RouteSelectorProps> = ({ currentRoute, onSelectRou
   return (
     <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4">
       <div className="flex items-center space-x-2 text-indigo-900 mb-3">
-        <Waypoints className="w-5 h-5" />
+        <Waypoints className="w-2 h-2" />
         <h3 className="font-semibold text-lg">Percursos</h3>
       </div>
       
