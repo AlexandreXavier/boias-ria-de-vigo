@@ -36,6 +36,33 @@ const selectedIcon = new Icon({
   shadowSize: [41, 41]
 });
 
+// Estilos de mapa disponíveis (TileLayer configs)
+type MapStyleId = 'voyager' | 'osm' | 'satellite';
+
+const MAP_STYLES: { id: MapStyleId; label: string; url: string; attribution: string }[] = [
+  {
+    id: 'voyager',
+    label: 'Regata',
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  },
+  {
+    id: 'osm',
+    label: 'Canal',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  },
+  {
+    id: 'satellite',
+    label: 'Satélite',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution:
+      'Tiles &copy; Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+  },
+];
+
 interface MapProps {
   buoys: Buoy[];
   sidebarOpen: boolean;
@@ -126,7 +153,6 @@ const RouteAnimator: React.FC<{ buoys: Buoy[]; startPosition?: { lat: number; ln
   return null;
 };
 
-
 // Captura a instância do mapa (react-leaflet v4/v5) e envia para o estado no componente pai
 const MapInstanceObserver: React.FC<{ setMapInstance: (map: LeafletMap) => void }> = ({ setMapInstance }) => {
   const map = useMap();
@@ -147,6 +173,10 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activ
   const [mapInstance, setMapInstance] = useState<LeafletMap | null>(null);
   const userLocationCircleRef = useRef<L.Circle | null>(null);
   const userLocationTooltipRef = useRef<L.Tooltip | null>(null);
+
+  // Estilo atual do mapa (TileLayer)
+  const [mapStyleId, setMapStyleId] = useState<MapStyleId>('voyager');
+  const currentMapStyle = MAP_STYLES.find((s) => s.id === mapStyleId) ?? MAP_STYLES[0];
 
   const handleLocateMe = () => {
     console.log('Locate me clicked');
@@ -180,10 +210,9 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activ
           fillColor: 'red',
           fillOpacity: 0.1,
         });
-
         circle.addTo(mapInstance);
 
-        // adiciona apenas o texto "MAD MAX" sobre a posição mais tarde
+        // adiciona texto e as coordenadas GPS
         const tooltip = L.tooltip({
           permanent: true,
           direction: 'top',
@@ -205,11 +234,28 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activ
 
   return (
     <div className="h-full w-full rounded-xl overflow-hidden shadow-md border border-slate-200 bg-slate-100 relative">
+      {/* Selector de estilo de mapa */}
+      <div className="absolute bottom-4 right-4 z-[900] flex flex-wrap gap-1 bg-white/95 border border-slate-200 rounded-full shadow-lg px-3 py-2">
+        {MAP_STYLES.map((style) => (
+          <button
+            key={style.id}
+            type="button"
+            onClick={() => setMapStyleId(style.id)}
+            className={`px-3 py-0.5 text-[10px] font-medium rounded-full border transition-colors ${
+              mapStyleId === style.id
+                ? 'bg-indigo-500 text-white border-indigo-500'
+                : 'bg-white text-slate-600 hover:bg-slate-100 border-slate-200'
+            }`}
+          >
+            {style.label}
+          </button>
+        ))}
+      </div>
       <button
         type="button"
         onClick={handleLocateMe}
         className="absolute bottom-4 left-4 z-[900] bg-white/95 hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-md rounded-full px-3 py-2 flex items-center space-x-2 text-xs font-medium transition-colors"
-        title="Ir para a minha localização"
+        title="Localização do Utilizador"
       >
         <Crosshair className="w-4 h-4" />
       </button>
@@ -220,10 +266,11 @@ const VigoMap: React.FC<MapProps> = ({ buoys, sidebarOpen, selectedBuoyId, activ
         className="h-full w-full"
       >
         <MapInstanceObserver setMapInstance={setMapInstance} />
+
         <ResizeHandler sidebarOpen={sidebarOpen} />
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          attribution={currentMapStyle.attribution}
+          url={currentMapStyle.url}
         />
         {/* Animação dos trechos entre boias visíveis, na ordem do array (excepto em 'all').
             Se existir startPosition, ela é usada como primeiro ponto lógico da rota. */}

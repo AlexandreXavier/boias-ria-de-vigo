@@ -158,12 +158,24 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col h-screen font-sans">
-      {/* Main Content - full height for map and controls */}
+      {/*  Main Content - tamanho total para mapa e controlos */}
       <main className="flex-1 flex overflow-hidden p-4 gap-4 relative">
         
         {/* Left Sidebar - Controls */}
         {isSidebarOpen && (
           <div className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto pr-1 animate-in slide-in-from-left duration-300">
+            {/* Botão interno para recolher o sidebar quando o botão do mapa não é visível */}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(false)}
+                className="mb-1 inline-flex items-center px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-200"
+                title="Recolher painel"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
             <RouteSelector 
               currentRoute={activeRoute} 
               onSelectRoute={setActiveRoute}
